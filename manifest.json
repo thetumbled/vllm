@@ -1,0 +1,20 @@
+{
+  "base_commit": "c84273be384d7faaeadfb36caced2f9d5a112f7f",
+  "feature_commit": "0a14d0ddf132388555e8e17e5d5866598ed4f541",
+  "offline_experiment_base": "2440ffc3870cdd6329bdf7ec0f780e05a2f01eb0",
+  "offline_source": "qwen25-offline-evidence.tar.gz contains tested-source.tar.gz and tracked-changes.patch",
+  "hardware": "NVIDIA RTX 4090 24GB",
+  "offline_order": [
+    "stock",
+    "pruned",
+    "pruned",
+    "stock"
+  ],
+  "offline_repetitions": 7,
+  "offline_warmups": 2,
+  "current_validation": "complete",
+  "sha256": {
+    "qwen25-offline-evidence.tar.gz": "4a0658cd6033c7c32c688867cab844b50c73e19e435a8784c71b7e8ce00c29ae",
+    "pr-ready-validation.tar.gz": "4d09dc092c3fe82203c7efd25c6c65503428a332c44d17b3f3e0475cfcb554c5"
+  }
+}

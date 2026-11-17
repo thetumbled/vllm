@@ -1,0 +1,23 @@
+{
+  "accuracy": 0.8828125,
+  "invalid_rate": 0.0,
+  "latency": 413.2572647957131,
+  "questions_per_second": 0.30973442188191097,
+  "total_output_tokens": 23969,
+  "tokens_per_second": 58.00019029755878,
+  "num_questions": 128,
+  "num_shots": 5,
+  "max_tokens": 1024,
+  "timestamp": 1794916878.490545,
+  "request_params": {
+    "endpoint": "chat",
+    "model": "qwen25-ffn",
+    "temperature": 0.0,
+    "top_p": null,
+    "top_k": null,
+    "seed": 42,
+    "stop": null,
+    "reasoning_effort": null,
+    "chat_template_kwargs": null
+  }
+}

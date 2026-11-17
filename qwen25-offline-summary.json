@@ -1,0 +1,88 @@
+{
+  "rows": [
+    {
+      "input_tokens": 128,
+      "batch": 1,
+      "stock_ms": 22.787634283304214,
+      "pruned_ms": 22.71795691922307,
+      "change_pct": -0.30576830931587917,
+      "round1_pct": -0.17798257563236275,
+      "round2_pct": -0.4330980409371521
+    },
+    {
+      "input_tokens": 128,
+      "batch": 4,
+      "stock_ms": 70.40809467434883,
+      "pruned_ms": 69.78983944281936,
+      "change_pct": -0.8781024886258093,
+      "round1_pct": 0.4438500527646605,
+      "round2_pct": -2.1861338784961992
+    },
+    {
+      "input_tokens": 512,
+      "batch": 1,
+      "stock_ms": 50.53647933527827,
+      "pruned_ms": 50.342132803052664,
+      "change_pct": -0.38456682139695886,
+      "round1_pct": 0.7225205410867686,
+      "round2_pct": -1.467178845313355
+    },
+    {
+      "input_tokens": 512,
+      "batch": 4,
+      "stock_ms": 232.62355383485556,
+      "pruned_ms": 226.4438890852034,
+      "change_pct": -2.6565086156491335,
+      "round1_pct": -2.5742448441609556,
+      "round2_pct": -2.7385123904149267
+    },
+    {
+      "input_tokens": 2048,
+      "batch": 1,
+      "stock_ms": 189.98736748471856,
+      "pruned_ms": 185.20605191588402,
+      "change_pct": -2.5166492025945453,
+      "round1_pct": -2.275892156293624,
+      "round2_pct": -2.7564280055110246
+    },
+    {
+      "input_tokens": 2048,
+      "batch": 4,
+      "stock_ms": 917.3568123951554,
+      "pruned_ms": 892.54200598225,
+      "change_pct": -2.705033208192531,
+      "round1_pct": -2.577240120085289,
+      "round2_pct": -2.8325334313348605
+    },
+    {
+      "input_tokens": 4096,
+      "batch": 1,
+      "stock_ms": 381.18906132876873,
+      "pruned_ms": 371.9374383799732,
+      "change_pct": -2.4270431361660183,
+      "round1_pct": -2.286390136265659,
+      "round2_pct": -2.5672127716699578
+    },
+    {
+      "input_tokens": 4096,
+      "batch": 4,
+      "stock_ms": 1520.2683149836957,
+      "pruned_ms": 1480.6409287266433,
+      "change_pct": -2.6066047595997843,
+      "round1_pct": -2.470813729081911,
+      "round2_pct": -2.7419591976323154
+    }
+  ],
+  "correctness": [
+    {
+      "identical": 16,
+      "total": 16,
+      "status": "passed vLLM check_logprobs_close with default tolerances"
+    },
+    {
+      "identical": 16,
+      "total": 16,
+      "status": "passed vLLM check_logprobs_close with default tolerances"
+    }
+  ]
+}
