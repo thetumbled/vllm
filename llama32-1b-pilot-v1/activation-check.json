@@ -1,0 +1,53 @@
+{
+  "cells": [
+    {
+      "input_tokens": 4096,
+      "requests_per_generate": 1,
+      "pruned_prefill_passes": 9,
+      "skipped_rows": 36855
+    },
+    {
+      "input_tokens": 4096,
+      "requests_per_generate": 4,
+      "pruned_prefill_passes": 18,
+      "skipped_rows": 147420
+    },
+    {
+      "input_tokens": 512,
+      "requests_per_generate": 4,
+      "pruned_prefill_passes": 18,
+      "skipped_rows": 18396
+    },
+    {
+      "input_tokens": 2048,
+      "requests_per_generate": 1,
+      "pruned_prefill_passes": 9,
+      "skipped_rows": 18423
+    },
+    {
+      "input_tokens": 2048,
+      "requests_per_generate": 4,
+      "pruned_prefill_passes": 18,
+      "skipped_rows": 73692
+    },
+    {
+      "input_tokens": 128,
+      "requests_per_generate": 4,
+      "pruned_prefill_passes": 18,
+      "skipped_rows": 4572
+    },
+    {
+      "input_tokens": 128,
+      "requests_per_generate": 1,
+      "pruned_prefill_passes": 9,
+      "skipped_rows": 1143
+    },
+    {
+      "input_tokens": 512,
+      "requests_per_generate": 1,
+      "pruned_prefill_passes": 9,
+      "skipped_rows": 4599
+    }
+  ],
+  "gsm8k_identical_token_sequences": 32
+}

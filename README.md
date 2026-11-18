@@ -7,7 +7,8 @@ the upstream source tree.
 
 ## Revisions and environment
 
-- Feature: `0a14d0ddf132388555e8e17e5d5866598ed4f541`.
+- Current feature: `c50fdb9f7542b99afffc9f789f23b286627c6b78`.
+- Qwen validation revision: `0a14d0ddf132388555e8e17e5d5866598ed4f541`.
 - Rebased main: `c84273be384d7faaeadfb36caced2f9d5a112f7f`.
 - GPU: NVIDIA RTX 4090, 24 GB; BF16; FlashAttention 2.
 - Current environment and measured revision: `pr-ready-validation/environment.json`.
@@ -84,3 +85,21 @@ VLLM_MODEL_REDIRECT_PATH=/path/to/model-redirect.json \
 
 - GSM8K: stock 113/128 (88.28%), pruned 113/128 (88.28%), no invalid responses.
 - HTTP serving: see [summary.json](pr-ready-validation/summary.json) and individual run JSONs for timings and variability.
+
+## Native Llama pilot
+
+[Llama results and source identity](llama32-1b-pilot-v1/) and
+[full raw archive](llama32-1b-pilot-v1.tar.gz) cover Llama-3.2-1B-Instruct.
+All four changed files match the GPU-tested source hashes exactly. The shared
+runner/graph implementation was unchanged from the Qwen validation revision.
+
+- 4 real-model regressions passed with `VLLM_GPU_SYNC_CHECK=error`.
+- 16/16 natural-language output token sequences matched; default logprob checks passed.
+- GSM8K first 32 questions: 8/32 for both arms, and all 32 output token sequences matched.
+- One stock/pruned pilot pair, 2 warmups and 7 timed calls per case, both using
+  breakable prefill graphs, output length 1. At 4096 input tokens, median
+  offline generation time decreased by 4.24% / 4.41% for 1/4 requests per call.
+- Four-request calls split into two prefill executions in the pruned arm;
+  these are client request groups, not forced GPU batches of four.
+- Total pruned rows match all measured and warmup requests. Raw per-call timings
+  are provided; this is not an alternating multi-run or HTTP Llama benchmark.

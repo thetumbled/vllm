@@ -1,0 +1,99 @@
+{
+  "arm": "stock",
+  "input_tokens": 512,
+  "batch": 1,
+  "samples": [
+    {
+      "elapsed_ms": 10.250639170408249,
+      "ttft_ms": [
+        9.853601455688477
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    },
+    {
+      "elapsed_ms": 10.49891859292984,
+      "ttft_ms": [
+        9.963035583496094
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    },
+    {
+      "elapsed_ms": 10.618548840284348,
+      "ttft_ms": [
+        10.040521621704102
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    },
+    {
+      "elapsed_ms": 10.768052190542221,
+      "ttft_ms": [
+        10.251045227050781
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    },
+    {
+      "elapsed_ms": 9.955696761608124,
+      "ttft_ms": [
+        9.597539901733398
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    },
+    {
+      "elapsed_ms": 10.211430490016937,
+      "ttft_ms": [
+        9.84501838684082
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    },
+    {
+      "elapsed_ms": 10.027527809143066,
+      "ttft_ms": [
+        9.666919708251953
+      ],
+      "output_ids": [
+        [
+          29235
+        ]
+      ]
+    }
+  ],
+  "median_elapsed_ms": 10.250639170408249,
+  "mean_ttft_ms": 9.888240269252233,
+  "worker_stats": [
+    {
+      "model_class": "LlamaForCausalLM",
+      "compilation_mode": "0",
+      "breakable_graph_enabled": true,
+      "pruning": {
+        "batches": 0,
+        "skipped_rows": 0,
+        "enabled": false
+      },
+      "breakable_entries": 8
+    }
+  ]
+}

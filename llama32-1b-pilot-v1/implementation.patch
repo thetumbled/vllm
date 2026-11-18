@@ -1,0 +1,151 @@
+diff --git a/.buildkite/test_areas/cuda.yaml b/.buildkite/test_areas/cuda.yaml
+index de2c92264c..4a9d5dd527 100644
+--- a/.buildkite/test_areas/cuda.yaml
++++ b/.buildkite/test_areas/cuda.yaml
+@@ -77,6 +77,7 @@ steps:
+   - tests/v1/cudagraph/test_last_layer_ffn.py
+   - vllm/envs.py
+   - vllm/model_executor/models/qwen3.py
++  - vllm/model_executor/models/llama.py
+   - vllm/model_executor/models/transformers/
+   - vllm/v1/worker/gpu/last_layer_ffn.py
+   - vllm/v1/worker/gpu/model_runner.py
+diff --git a/docs/design/last_layer_ffn_pruning.md b/docs/design/last_layer_ffn_pruning.md
+index 480d9c65c1..f629009ba5 100644
+--- a/docs/design/last_layer_ffn_pruning.md
++++ b/docs/design/last_layer_ffn_pruning.md
+@@ -1,7 +1,7 @@
+ # Last-layer FFN row pruning (prototype)
+ 
+ `VLLM_ENABLE_LAST_LAYER_FFN_PRUNING=1` enables an experimental optimization for
+-native dense Qwen3 models and dense Qwen2/Qwen2.5 through the Transformers
++native dense Qwen3 and Llama models, and dense Qwen2/Qwen2.5 through the Transformers
+ modeling backend. It is disabled by default.
+ 
+ During a complete prefill, ordinary next-token generation consumes only the last
+diff --git a/tests/v1/cudagraph/test_last_layer_ffn.py b/tests/v1/cudagraph/test_last_layer_ffn.py
+index 3b35b30516..d08efcf196 100644
+--- a/tests/v1/cudagraph/test_last_layer_ffn.py
++++ b/tests/v1/cudagraph/test_last_layer_ffn.py
+@@ -72,7 +72,10 @@ def _stats(model):
+     return model.llm.collective_rpc("ffn_test_stats")[0]
+ 
+ 
+-@pytest.mark.parametrize("model_name", ["Qwen/Qwen3-4B", "Qwen/Qwen2.5-7B-Instruct"])
++@pytest.mark.parametrize(
++    "model_name",
++    ["Qwen/Qwen3-4B", "Qwen/Qwen2.5-7B-Instruct", "meta-llama/Llama-3.2-1B-Instruct"],
++)
+ @pytest.mark.parametrize("mode", ["eager", "graph", "prefix", "chunked"])
+ def test_pruning_preserves_generation_and_fallbacks(
+     vllm_runner, monkeypatch, mode, model_name
+diff --git a/vllm/model_executor/models/llama.py b/vllm/model_executor/models/llama.py
+index 26752214e5..93d5a44452 100644
+--- a/vllm/model_executor/models/llama.py
++++ b/vllm/model_executor/models/llama.py
+@@ -315,6 +315,7 @@ class LlamaDecoderLayer(nn.Module):
+         positions: torch.Tensor,
+         hidden_states: torch.Tensor,
+         residual: torch.Tensor | None,
++        last_layer_token_indices: torch.Tensor | None = None,
+     ) -> tuple[torch.Tensor, torch.Tensor]:
+         # Self Attention
+         if residual is None:
+@@ -324,6 +325,10 @@ class LlamaDecoderLayer(nn.Module):
+             hidden_states, residual = self.input_layernorm(hidden_states, residual)
+         hidden_states = self.self_attn(positions=positions, hidden_states=hidden_states)
+ 
++        # Attention has already written KV for every prompt token.
++        if last_layer_token_indices is not None:
++            hidden_states = hidden_states.index_select(0, last_layer_token_indices)
++            residual = residual.index_select(0, last_layer_token_indices)
+         # Fully Connected
+         hidden_states, residual = self.post_attention_layernorm(hidden_states, residual)
+         hidden_states = self.mlp(hidden_states)
+@@ -409,6 +414,7 @@ class LlamaModel(nn.Module, EagleModelMixin):
+         positions: torch.Tensor,
+         intermediate_tensors: IntermediateTensors | None,
+         inputs_embeds: torch.Tensor | None = None,
++        last_layer_token_indices: torch.Tensor | None = None,
+         **extra_layer_kwargs,
+     ) -> torch.Tensor | IntermediateTensors | tuple[torch.Tensor, list[torch.Tensor]]:
+         if get_pp_group().is_first_rank:
+@@ -431,9 +437,18 @@ class LlamaModel(nn.Module, EagleModelMixin):
+             islice(self.layers, self.start_layer, self.end_layer),
+             start=self.start_layer,
+         ):
+-            hidden_states, residual = layer(
+-                positions, hidden_states, residual, **extra_layer_kwargs
+-            )
++            if last_layer_token_indices is not None and idx == self.end_layer - 1:
++                hidden_states, residual = layer(
++                    positions,
++                    hidden_states,
++                    residual,
++                    last_layer_token_indices=last_layer_token_indices,
++                    **extra_layer_kwargs,
++                )
++            else:
++                hidden_states, residual = layer(
++                    positions, hidden_states, residual, **extra_layer_kwargs
++                )
+             self._maybe_add_hidden_state(
+                 aux_hidden_states, idx + 1, hidden_states, residual
+             )
+@@ -448,6 +463,13 @@ class LlamaModel(nn.Module, EagleModelMixin):
+             )
+ 
+         hidden_states, _ = self.norm(hidden_states, residual)
++        if last_layer_token_indices is not None:
++            output = hidden_states.new_zeros(
++                (positions.shape[-1], hidden_states.shape[-1])
++            )
++            hidden_states = output.index_copy_(
++                0, last_layer_token_indices, hidden_states
++            )
+ 
+         if len(aux_hidden_states) > 0:
+             return hidden_states, aux_hidden_states
+@@ -489,6 +511,9 @@ class LlamaForCausalLM(
+         config = vllm_config.model_config.hf_config
+         quant_config = vllm_config.quant_config
+         self.config = config
++        self._ffn_pruning_supported = (
++            config.model_type == "llama" and layer_type is LlamaDecoderLayer
++        )
+ 
+         self.model = self._init_model(
+             vllm_config=vllm_config,
+@@ -517,6 +542,10 @@ class LlamaForCausalLM(
+             self.model.make_empty_intermediate_tensors
+         )
+ 
++    @property
++    def supports_last_layer_ffn_pruning(self):
++        return self._ffn_pruning_supported
++
+     def _init_model(
+         self,
+         vllm_config: VllmConfig,
+@@ -534,11 +563,17 @@ class LlamaForCausalLM(
+         positions: torch.Tensor,
+         intermediate_tensors: IntermediateTensors | None = None,
+         inputs_embeds: torch.Tensor | None = None,
++        last_layer_token_indices: torch.Tensor | None = None,
+     ) -> torch.Tensor | IntermediateTensors:
+-        model_output = self.model(
+-            input_ids, positions, intermediate_tensors, inputs_embeds
+-        )
+-        return model_output
++        if last_layer_token_indices is not None:
++            return self.model(
++                input_ids,
++                positions,
++                intermediate_tensors,
++                inputs_embeds,
++                last_layer_token_indices=last_layer_token_indices,
++            )
++        return self.model(input_ids, positions, intermediate_tensors, inputs_embeds)
+ 
+     def compute_logits(
+         self,

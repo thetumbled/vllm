@@ -1,0 +1,16 @@
+{
+  "base_commit": "0a14d0ddf132388555e8e17e5d5866598ed4f541",
+  "files_sha256": {
+    "vllm/model_executor/models/llama.py": "421df0b8e6cf0e7b04f28dd0f9b42a706bb24bff8316cbdd0a45ef523ebda9ed",
+    "tests/v1/cudagraph/test_last_layer_ffn.py": "f91a7b38d9339fceb0f87c0f6f52f430cc7b5155b6ca293babf9761c42b0eceb",
+    ".buildkite/test_areas/cuda.yaml": "670de797b6f6ce3befd2e0dfb2503bd03a00f80ef4f71ac28c2f49e7d7759866",
+    "docs/design/last_layer_ffn_pruning.md": "62d67e09d98441d0fae59f1014010f02023f94a9e38c1bc004a61b4b0ca08e2f"
+  },
+  "python": "3.12.3",
+  "packages": {
+    "torch": "2.14.1+cu126",
+    "transformers": "5.23.0",
+    "vllm": "0.1.dev25567+g2440ffc38.d20261117"
+  },
+  "gpu": "NVIDIA GeForce RTX 4090, 24564 MiB, 550.54.14"
+}
